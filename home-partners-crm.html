@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Partners · CRM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#1a3a5c;--primary-light:#2563eb;--accent:#e8a020;
+  --bg:#f0f4f8;--card:#fff;--text:#1e293b;--muted:#64748b;
+  --border:#e2e8f0;--success:#16a34a;--warn:#d97706;--danger:#dc2626;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hidden{display:none!important}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1f35,#1a3a5c)}
+.screen.active{display:flex}
+.auth-card{background:#fff;border-radius:16px;padding:44px;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,.35);text-align:center}
+.brand{font-size:28px;font-weight:800;color:var(--primary);letter-spacing:-1px;margin-bottom:4px}
+.brand span{color:var(--accent)}
+.auth-card .sub{color:var(--muted);margin-bottom:28px;font-size:14px}
+.steps{background:#f8fafc;border-radius:8px;padding:18px;margin-bottom:20px;font-size:13px;line-height:1.9;text-align:left}
+.steps ol{padding-left:18px}
+.steps code{background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:12px}
+.steps a{color:var(--primary-light)}
+label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:14px;outline:none;background:#fff;color:var(--text);transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary-light)}
+textarea{resize:vertical;min-height:80px;font-family:inherit}
+.form-group{margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#0f2640}
+.btn-blue{background:var(--primary-light);color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-secondary{background:#f1f5f9;color:var(--text)}.btn-secondary:hover{background:#e2e8f0}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-wa{background:#25D366;color:#fff}.btn-wa:hover{background:#128C7E}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-google{background:#fff;border:1.5px solid var(--border);color:var(--text);width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:10px;margin-top:8px}
+.btn-google:hover{background:#f8fafc}
+.btn-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:14px;transition:all .1s}
+.btn-icon:hover{background:#f1f5f9}
+#app{display:flex;min-height:100vh}
+#sidebar{width:230px;background:var(--primary);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+#main{margin-left:230px;flex:1;padding:28px;min-height:100vh;max-width:1400px}
+.sb-logo{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logo .name{color:#fff;font-size:17px;font-weight:800;letter-spacing:-.5px}
+.sb-logo .name span{color:var(--accent)}
+.sb-logo .sub{color:rgba(255,255,255,.45);font-size:11px;margin-top:1px}
+.sb-section{padding:14px 14px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.6);cursor:pointer;font-size:13px;font-weight:500;margin:1px 8px;border-radius:7px;transition:all .15s;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.15);color:#fff}
+.nav-item .icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto}
+.sb-bottom{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.1)}
+.user-block{display:flex;align-items:center;gap:9px;padding:8px;border-radius:8px;cursor:pointer}
+.user-block:hover{background:rgba(255,255,255,.06)}
+.user-av{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.user-info-sb{flex:1;overflow:hidden}
+.user-info-sb .uname{color:#fff;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-info-sb .uemail{color:rgba(255,255,255,.4);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-header h1{font-size:22px;font-weight:800;color:var(--primary)}
+.page-header .right{display:flex;gap:8px;align-items:center}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:#fff;border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:3px solid transparent}
+.stat-card.blue{border-left-color:var(--primary-light)}
+.stat-card.green{border-left-color:var(--success)}
+.stat-card.red{border-left-color:var(--danger)}
+.stat-card.orange{border-left-color:var(--accent)}
+.stat-card .lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.stat-card .num{font-size:26px;font-weight:800;color:var(--text)}
+.stat-card .sub-num{font-size:12px;color:var(--muted);margin-top:2px}
+.card{background:#fff;border-radius:var(--r);box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:18px}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:14px;color:var(--primary)}
+.card-body{padding:18px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+@media(max-width:1000px){.dash-grid{grid-template-columns:1fr}}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{padding:9px 12px;text-align:left;font-weight:700;color:var(--muted);border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f8fafc}
+.tbl-actions{display:flex;gap:4px}
+.badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-noiniciat{background:#f1f5f9;color:#475569}
+.b-enprogres,.b-enprogrés{background:#fef3c7;color:#92400e}
+.b-completat{background:#dcfce7;color:#15803d}
+.b-perdut{background:#fee2e2;color:#b91c1c}
+.b-lead{background:#dbeafe;color:#1d4ed8}
+.b-prospecte{background:#ede9fe;color:#6d28d9}
+.b-client{background:#dcfce7;color:#15803d}
+.b-soci{background:#fef9c3;color:#713f12}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{width:auto;flex:1;min-width:140px;max-width:220px;font-size:13px}
+.filters .search-wrap{position:relative;flex:2;min-width:200px}
+.filters .search-wrap input{padding-left:30px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.toggle-mine{display:flex;align-items:center;gap:8px;font-size:13px;margin-left:auto;white-space:nowrap;cursor:pointer;padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-weight:600;color:var(--text)}
+.toggle-mine:hover{background:#f8fafc}
+.toggle-mine.active{border-color:var(--primary-light);color:var(--primary-light);background:#eff6ff}
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.alert-warn{background:#fef3c7;border-left:4px solid var(--warn);color:#92400e}
+.alert-danger{background:#fee2e2;border-left:4px solid var(--danger);color:#b91c1c}
+.alert-info{background:#eff6ff;border-left:4px solid var(--primary-light);color:#1d4ed8}
+.c-name{font-weight:700;display:block}
+.c-sub{font-size:11px;color:var(--muted)}
+.venc-past{color:var(--danger);font-weight:700}
+.venc-today{color:var(--warn);font-weight:700}
+.venc-ok{color:var(--muted)}
+#modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+#modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 72px rgba(0,0,0,.3)}
+.modal-hdr{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-hdr h2{font-size:16px;font-weight:800;color:var(--primary)}
+.modal-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:4px}
+.modal-x:hover{color:var(--text)}
+.modal-body{padding:18px 22px}
+.modal-ftr{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.section{display:none}.section.active{display:block}
+.chart-wrap{position:relative;height:220px}
+.venc-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.venc-item:last-child{border-bottom:none}
+.venc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.venc-body .name{font-size:13px;font-weight:700}
+.venc-body .meta{font-size:12px;color:var(--muted);margin-top:2px}
+.venc-date{font-size:11px;white-space:nowrap;padding-top:3px}
+.sig-preview{background:#f8fafc;border:1px dashed var(--border);border-radius:7px;padding:14px;font-size:13px;min-height:60px;margin-top:8px;white-space:pre-wrap;color:var(--text)}
+#toast{position:fixed;bottom:22px;right:22px;background:#1e293b;color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.err{background:var(--danger)}
+#toast.ok{background:var(--success)}
+#loading{position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.spin{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--primary-light);border-radius:50%;animation:sp .65s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#load-msg{color:var(--muted);font-size:13px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:36px;margin-bottom:10px}
+.empty-state p{font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="screen active" id="setup-screen">
+  <div class="auth-card">
+    <div class="brand">HOME <span>PARTNERS</span></div>
+    <p class="sub">Configuració inicial — es fa una sola vegada</p>
+    <div class="steps">
+      <strong>Necessites afegir una URI de redirecció a Google Cloud:</strong>
+      <ol>
+        <li>Ves a <a href="https://console.cloud.google.com/apis/credentials" target="_blank">console.cloud.google.com/apis/credentials</a></li>
+        <li>Edita el teu client OAuth 2.0</li>
+        <li>A <strong>"URI de redirecció autoritzades"</strong> afegeix:<br><code>http://localhost:8080/home-partners-crm.html</code></li>
+        <li>Desa i torna aquí</li>
+      </ol>
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label>Client ID de Google OAuth 2.0</label>
+      <input type="text" id="inp-cid" placeholder="123456789-xxxx.apps.googleusercontent.com">
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label>ID del Google Sheet</label>
+      <input type="text" id="inp-sid" value="13Zn82clQn0qR7K02zJwm0UAe9n8pxAXnHtzF9jhp0E0">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveSetup()">Continuar →</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen" id="login-screen">
+  <div class="auth-card">
+    <div class="brand">HOME <span>PARTNERS</span></div>
+    <p class="sub">CRM · Gestió comercial</p>
+    <div class="form-group" style="text-align:left;margin-bottom:8px">
+      <label>Correu corporatiu</label>
+      <input type="email" id="login-email" placeholder="sergi@sergimartin.eu" autocomplete="email"/>
+    </div>
+    <button class="btn btn-google" onclick="login()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continua amb Google
+    </button>
+    <div style="margin-top:14px">
+      <a href="#" style="font-size:12px;color:var(--muted)" onclick="resetSetup()">Canviar configuració</a>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <aside id="sidebar">
+    <div class="sb-logo">
+      <div class="name">HOME <span>PARTNERS</span></div>
+      <div class="sub">CRM · Gestió comercial</div>
+    </div>
+    <div class="sb-section">Principal</div>
+    <div class="nav-item active" data-s="dashboard" onclick="go('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" data-s="meus" onclick="go('meus')"><span class="icon">👤</span> Els meus contactes <span class="nav-badge hidden" id="badge-meus">0</span></div>
+    <div class="nav-item" data-s="tots" onclick="go('tots')"><span class="icon">👥</span> Tots els contactes</div>
+    <div class="sb-section">Eina</div>
+    <div class="nav-item" data-s="leads" onclick="go('leads')"><span class="icon">📥</span> Nous leads <span class="nav-badge hidden" id="badge-leads">0</span></div>
+    <div class="nav-item" data-s="config" onclick="go('config')"><span class="icon">⚙️</span> Configuració</div>
+    <div class="sb-bottom">
+      <div class="user-block" onclick="logout()">
+        <div class="user-av" id="u-av">?</div>
+        <div class="user-info-sb">
+          <div class="uname" id="u-name">Usuari</div>
+          <div class="uemail" id="u-email"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main id="main">
+    <div class="section active" id="section-dashboard">
+      <div class="page-header"><h1>Dashboard</h1><div id="dash-date" style="color:var(--muted);font-size:13px"></div></div>
+      <div id="alerts-zone"></div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="dash-grid">
+        <div class="card"><div class="card-hdr">💰 Facturació per estat</div><div class="card-body"><div class="chart-wrap"><canvas id="chart-facturacio"></canvas></div></div></div>
+        <div class="card"><div class="card-hdr">📈 Cartera d'oportunitats</div><div class="card-body"><div class="chart-wrap"><canvas id="chart-estats"></canvas></div></div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="card"><div class="card-hdr">⏰ Venciments pendents</div><div class="card-body" id="dash-venciments"></div></div>
+        <div class="card"><div class="card-hdr">👤 Per usuari</div><div class="card-body"><div class="chart-wrap"><canvas id="chart-usuaris"></canvas></div></div></div>
+      </div>
+    </div>
+    <div class="section" id="section-meus">
+      <div class="page-header"><h1>Els meus contactes</h1><button class="btn btn-blue" onclick="openContacteModal()">+ Nou contacte</button></div>
+      <div id="tbl-meus-wrap"></div>
+    </div>
+    <div class="section" id="section-tots">
+      <div class="page-header"><h1>Tots els contactes</h1><button class="btn btn-blue" onclick="openContacteModal()">+ Nou contacte</button></div>
+      <div id="tbl-tots-wrap"></div>
+    </div>
+    <div class="section" id="section-leads">
+      <div class="page-header"><h1>Nous leads sense assignar</h1></div>
+      <div class="alert alert-info">💡 <div>Connecta el teu formulari web a Google Sheets. Els contactes sense assignar apareixeran aquí.</div></div>
+      <div id="tbl-leads-wrap"></div>
+    </div>
+    <div class="section" id="section-config">
+      <div class="page-header"><h1>Configuració</h1></div>
+      <div class="card">
+        <div class="card-hdr">✍️ Signatura d'email</div>
+        <div class="card-body">
+          <div class="form-group"><label>Signatura</label><textarea id="inp-sig" rows="6" placeholder="Nom Cognom&#10;Càrrec | Home Partners&#10;Tel: +34 6XX XXX XXX&#10;www.home-partners.eu" oninput="previewSig()"></textarea></div>
+          <div style="margin-bottom:12px"><label style="margin-bottom:6px">Previsualització</label><div class="sig-preview" id="sig-preview"></div></div>
+          <button class="btn btn-primary" onclick="saveSig()">Desar signatura</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">🔗 Connexió</div>
+        <div class="card-body" style="font-size:13px">
+          <p><strong>Sheet ID:</strong> <code id="cfg-sid" style="font-size:12px;background:#f1f5f9;padding:2px 6px;border-radius:4px"></code></p>
+          <p style="margin-top:8px"><strong>Usuari:</strong> <span id="cfg-user"></span></p>
+          <p style="margin-top:8px"><strong>Últim refresc:</strong> <span id="cfg-refresh"></span></p>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="refreshData()">🔄 Recarregar</button>
+            <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="resetSetup()">Canviar configuració</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="modal-bg" onclick="closeMd(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr"><h2 id="md-title"></h2><button class="modal-x" onclick="closeMd()">✕</button></div>
+    <div class="modal-body" id="md-body"></div>
+    <div class="modal-ftr" id="md-ftr"></div>
+  </div>
+</div>
+<div id="loading"><div class="spin"></div><div id="load-msg">Carregant...</div></div>
+<div id="toast"></div>
+
+<script>
+const SHEETS_API='https://sheets.googleapis.com/v4/spreadsheets';
+const GMAIL_API='https://gmail.googleapis.com/gmail/v1/users/me';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+const SHEET_NAME='Accions';
+const COL={venciment:0,accions:1,estatus:2,nom:3,cognoms:4,email:5,telefon:6,estat:7,ticket:8,wa:9,correu:10,assignat:11,data_creacio:12,origen:13};
+// Usuaris de l'equip — afegeix o modifica aquí
+const USERS=[
+  {nom:'Sergi Martín', email:'sergi@sergimartin.eu'},
+  {nom:'Marián',       email:'marian@home-partners.eu'}
+];
+// Si un usuari té més d'un correu, mapeja'l al principal
+const EMAIL_ALIASES={
+  'sergi@home-partners.eu':'sergi@sergimartin.eu'
+};
+function myEmail(){return EMAIL_ALIASES[S.user.email]||S.user.email;}
+const S={clientId:localStorage.getItem('hp_cid')||'',sheetId:localStorage.getItem('hp_sid')||'',token:null,user:{name:'',email:'',initials:'?'},contacts:[],chartFact:null,chartEst:null,chartUs:null,sig:'',lastRefresh:null};
+
+window.addEventListener('load',()=>{
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('ca-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const hash=window.location.hash;
+  if(hash.includes('access_token=')){
+    const params=new URLSearchParams(hash.substring(1));
+    const token=params.get('access_token');
+    if(token){S.token=token;history.replaceState(null,'',window.location.pathname+window.location.search);if(!S.clientId||!S.sheetId){showScr('setup');}else onLogin();return;}
+  }
+  if(!S.clientId||!S.sheetId){showScr('setup');document.getElementById('inp-cid').value=S.clientId;}
+  else showScr('login');
+});
+
+function showScr(name){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});
+  const el=document.getElementById(name+'-screen');
+  if(el){el.classList.add('active');}
+  if(name==='app'){document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});document.getElementById('app').style.display='flex';}
+}
+
+function saveSetup(){
+  const cid=document.getElementById('inp-cid').value.trim();
+  const sid=document.getElementById('inp-sid').value.trim();
+  if(!cid.includes('.apps.googleusercontent.com')){alert('Client ID no vàlid');return;}
+  if(!sid){alert('Entra l\'ID del Sheet');return;}
+  S.clientId=cid;S.sheetId=sid;
+  localStorage.setItem('hp_cid',cid);localStorage.setItem('hp_sid',sid);
+  showScr('login');
+}
+
+function resetSetup(){if(!confirm('Eliminar configuració?'))return;['hp_cid','hp_sid'].forEach(k=>localStorage.removeItem(k));location.reload();}
+
+function login(){
+  const redirectUri=window.location.origin+window.location.pathname;
+  const hint=(document.getElementById('login-email')||{}).value.trim()||'';
+  const p={client_id:S.clientId,redirect_uri:redirectUri,response_type:'token',scope:SCOPES,prompt:'select_account'};
+  if(hint)p.login_hint=hint;
+  const params=new URLSearchParams(p);
+  window.location.href='https://accounts.google.com/o/oauth2/v2/auth?'+params.toString();
+}
+
+async function onLogin(){
+  showScr('app');setLoad(true,'Obtenint les teves dades...');
+  try{await fetchUserInfo();await loadData();S.lastRefresh=new Date();renderAll();go('dashboard');toast('Benvingut/da, '+(S.user.name||S.user.email||'Usuari').split(' ')[0]+'! ✓','ok');}
+  catch(e){toast('Error: '+e.message,'err');console.error(e);}
+  finally{setLoad(false);}
+}
+
+async function fetchUserInfo(){
+  const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+S.token}});
+  const u=await r.json();
+  S.user={name:u.name||u.email,email:u.email||'',initials:(u.name||'?').charAt(0).toUpperCase()};
+  document.getElementById('u-av').textContent=S.user.initials;
+  document.getElementById('u-name').textContent=S.user.name;
+  document.getElementById('u-email').textContent=S.user.email;
+  document.getElementById('cfg-user').textContent=S.user.name+' ('+S.user.email+')';
+  document.getElementById('cfg-sid').textContent=S.sheetId;
+  S.sig=localStorage.getItem('hp_sig_'+S.user.email)||'';
+  document.getElementById('inp-sig').value=S.sig;previewSig();
+}
+
+function logout(){if(!confirm('Tancar sessió?'))return;S.token=null;S.contacts=[];document.getElementById('app').style.display='none';showScr('login');}
+
+async function api(url,method='GET',body=null){
+  const opts={method,headers:{Authorization:'Bearer '+S.token,'Content-Type':'application/json'}};
+  if(body)opts.body=JSON.stringify(body);
+  const res=await fetch(url,opts);
+  if(res.status===204)return{};
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error?.message||'Error API '+res.status);
+  return data;
+}
+
+async function loadData(){
+  const r=await api(`${SHEETS_API}/${S.sheetId}/values/${SHEET_NAME}!A:N`);
+  const rows=(r.values||[]);
+  if(rows.length<2){S.contacts=[];return;}
+  S.contacts=rows.slice(1).map((row,i)=>{
+    const get=(idx)=>(row[idx]||'').trim();
+    return{_row:i+2,venciment:get(COL.venciment),accions:get(COL.accions),estatus:get(COL.estatus),nom:get(COL.nom),cognoms:get(COL.cognoms),email:get(COL.email),telefon:get(COL.telefon),estat:get(COL.estat),ticket:get(COL.ticket),assignat:get(COL.assignat),data_creacio:get(COL.data_creacio),origen:get(COL.origen),nomComplet:(get(COL.nom)+' '+get(COL.cognoms)).trim(),ticketNum:parseTicket(get(COL.ticket))};
+  }).filter(c=>(c.nom||c.email)&&c.nom!=='Nom'&&c.email!=='Email'&&c.email!=='Correu');
+}
+
+async function refreshData(){setLoad(true,'Actualitzant...');try{await loadData();S.lastRefresh=new Date();renderAll();toast('Actualitzat ✓','ok');}catch(e){toast('Error: '+e.message,'err');}finally{setLoad(false);}}
+
+function parseTicket(s){if(!s)return 0;return parseInt(s.replace(/[€\.\s]/g,'').replace(',','.'))||0;}
+function fmtTicket(n){if(!n)return'€0';return'€'+Number(n).toLocaleString('ca-ES');}
+function fmtPreu(n){return new Intl.NumberFormat('ca-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);}
+const MONTHS={gen:0,feb:1,mar:2,abr:3,may:4,mai:4,jun:5,jul:6,ago:7,set:8,oct:9,nov:10,des:11};
+function parseDate(s){if(!s||s==='Cap')return null;const p=s.trim().split(/[\s\/\-]+/);if(p.length===3){const d=parseInt(p[0]),m=MONTHS[p[1].toLowerCase()],y=parseInt(p[2]);if(!isNaN(d)&&m!==undefined&&!isNaN(y))return new Date(y,m,d);}const d=new Date(s);return isNaN(d)?null:d;}
+function fmtDate(s){const d=parseDate(s);if(!d)return s||'-';return d.toLocaleDateString('ca-ES',{day:'2-digit',month:'short',year:'numeric'});}
+function vencClass(s){const d=parseDate(s);if(!d)return'venc-ok';const now=new Date();now.setHours(0,0,0,0);if(d<now)return'venc-past';if(d.toDateString()===now.toDateString())return'venc-today';return'venc-ok';}
+function estatBadge(e){const map={'No iniciat':'noiniciat','En progrés':'enprogres','En procés':'enprogres','Completat':'completat','Perdut':'perdut'};return`<span class="badge b-${map[e]||'noiniciat'}">${e||'-'}</span>`;}
+function estatusBadge(e){const map={Lead:'lead',Prospecte:'prospecte',Client:'client',Soci:'soci'};return`<span class="badge b-${map[e]||'lead'}">${e||'-'}</span>`;}
+
+function renderAll(){renderDashboard();renderContactTable('meus');renderContactTable('tots');renderContactTable('leads');updateBadges();document.getElementById('cfg-refresh').textContent=S.lastRefresh?.toLocaleTimeString('ca-ES')||'-';}
+function go(name){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.s===name));document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('section-'+name)?.classList.add('active');}
+
+function renderDashboard(){
+  const cs=S.contacts;const now=new Date();now.setHours(0,0,0,0);
+  const actius=cs.filter(c=>!['Completat','Perdut'].includes(c.estat));
+  const perduts=cs.filter(c=>c.estat==='Perdut');
+  const completats=cs.filter(c=>c.estat==='Completat');
+  const potencial=actius.reduce((a,c)=>a+c.ticketNum,0);
+  const realitzat=completats.reduce((a,c)=>a+c.ticketNum,0);
+  const perdut=perduts.reduce((a,c)=>a+c.ticketNum,0);
+  const vencutsAvui=cs.filter(c=>{const d=parseDate(c.venciment);if(!d||['Completat','Perdut'].includes(c.estat))return false;d.setHours(0,0,0,0);return d<=now;});
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card blue"><div class="lbl">Contactes actius</div><div class="num">${actius.length}</div><div class="sub-num">${cs.length} en total</div></div>
+    <div class="stat-card green"><div class="lbl">Realitzat</div><div class="num">${fmtPreu(realitzat)}</div><div class="sub-num">${completats.length} clients</div></div>
+    <div class="stat-card orange"><div class="lbl">Potencial</div><div class="num">${fmtPreu(potencial)}</div><div class="sub-num">${actius.length} oportunitats</div></div>
+    <div class="stat-card red"><div class="lbl">Perdut</div><div class="num">${fmtPreu(perdut)}</div><div class="sub-num">${perduts.length} contactes</div></div>
+    <div class="stat-card ${vencutsAvui.length>0?'red':'blue'}"><div class="lbl">Tasques avui/vençudes</div><div class="num">${vencutsAvui.length}</div><div class="sub-num">Pendents</div></div>`;
+  let alerts='';
+  const vencAnte=vencutsAvui.filter(c=>{const d=parseDate(c.venciment);d.setHours(0,0,0,0);return d<now;});
+  if(vencAnte.length)alerts+=`<div class="alert alert-danger">⚠️ <strong>${vencAnte.length} accions vençudes</strong></div>`;
+  const sense=cs.filter(c=>!c.assignat&&!['Completat','Perdut'].includes(c.estat));
+  if(sense.length)alerts+=`<div class="alert alert-warn">📥 <strong>${sense.length} contactes sense assignar</strong> — <a href="#" onclick="go('leads')" style="color:inherit;font-weight:700">Veure-los →</a></div>`;
+  document.getElementById('alerts-zone').innerHTML=alerts;
+  renderCharts(realitzat,potencial,perdut,cs);
+  const vencItems=cs.filter(c=>{const d=parseDate(c.venciment);if(!d)return false;return!['Completat','Perdut'].includes(c.estat);}).sort((a,b)=>parseDate(a.venciment)-parseDate(b.venciment)).slice(0,8);
+  const vEl=document.getElementById('dash-venciments');
+  if(!vencItems.length){vEl.innerHTML='<div class="empty-state"><div class="icon">✅</div><p>Sense accions pendents</p></div>';}
+  else vEl.innerHTML=vencItems.map(c=>{const cls=vencClass(c.venciment);const dc=cls==='venc-past'?'#dc2626':cls==='venc-today'?'#d97706':'#2563eb';const lbl=cls==='venc-past'?'⚠️ Vençut':cls==='venc-today'?'⏰ Avui':'';return`<div class="venc-item"><div class="venc-dot" style="background:${dc}"></div><div class="venc-body" style="flex:1"><div class="name">${c.nomComplet}</div><div class="meta">${c.accions||''}</div></div><div class="venc-date ${cls}">${fmtDate(c.venciment)} ${lbl}</div></div>`;}).join('');
+}
+
+function renderCharts(realitzat,potencial,perdut,cs){
+  const ctxF=document.getElementById('chart-facturacio');
+  if(S.chartFact)S.chartFact.destroy();
+  S.chartFact=new Chart(ctxF,{type:'doughnut',data:{labels:['Realitzat','Potencial','Perdut'],datasets:[{data:[realitzat,potencial,perdut],backgroundColor:['#16a34a','#2563eb','#dc2626'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}},cutout:'65%'}});
+  const countBy=(e)=>cs.filter(c=>c.estat===e).length;
+  const ctxE=document.getElementById('chart-estats');
+  if(S.chartEst)S.chartEst.destroy();
+  S.chartEst=new Chart(ctxE,{type:'bar',data:{labels:['No iniciat','En progrés','Completat','Perdut'],datasets:[{label:'Contactes',data:[countBy('No iniciat'),countBy('En progrés')||countBy('En procés'),countBy('Completat'),countBy('Perdut')],backgroundColor:['#94a3b8','#f59e0b','#16a34a','#dc2626'],borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+  const emailToNom={};USERS.forEach(u=>emailToNom[u.email]=u.nom);Object.keys(EMAIL_ALIASES).forEach(a=>emailToNom[a]=emailToNom[EMAIL_ALIASES[a]]||a.split('@')[0]);
+  const userMap={};cs.filter(c=>!['Completat','Perdut'].includes(c.estat)).forEach(c=>{const u=emailToNom[c.assignat]||c.assignat||'Sense assignar';userMap[u]=(userMap[u]||0)+1;});
+  const ctxU=document.getElementById('chart-usuaris');
+  if(S.chartUs)S.chartUs.destroy();
+  S.chartUs=new Chart(ctxU,{type:'doughnut',data:{labels:Object.keys(userMap),datasets:[{data:Object.values(userMap),backgroundColor:['#1a3a5c','#2563eb','#e8a020','#16a34a','#7c3aed'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}},cutout:'60%'}});
+}
+
+function renderContactTable(mode){
+  const wrapId=mode==='leads'?'tbl-leads-wrap':`tbl-${mode}-wrap`;
+  const wrap=document.getElementById(wrapId);if(!wrap)return;
+  wrap.innerHTML=`<div class="filters"><div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="src-${mode}" placeholder="Cercar nom, email, telèfon..." oninput="filterTable('${mode}')"></div><select id="est-${mode}" onchange="filterTable('${mode}')"><option value="">Tots els estats</option><option>No iniciat</option><option>En progrés</option><option>Completat</option><option>Perdut</option></select><select id="ets-${mode}" onchange="filterTable('${mode}')"><option value="">Tots els estatus</option><option>Lead</option><option>Prospecte</option><option>Client</option><option>Soci</option></select>${mode!=='leads'?`<button class="toggle-mine ${mode==='meus'?'active':''}" id="tog-${mode}" onclick="toggleMine('${mode}')">${mode==='meus'?'👤 Els meus':'👥 Tots'}</button>`:''}</div><div class="card" style="margin-bottom:0"><div id="tbody-${mode}"></div></div>`;
+  filterTable(mode);
+}
+
+const tableState={meus:{onlyMine:true},tots:{onlyMine:false},leads:{onlyMine:false}};
+function toggleMine(mode){tableState[mode].onlyMine=!tableState[mode].onlyMine;const btn=document.getElementById('tog-'+mode);if(btn){btn.classList.toggle('active',tableState[mode].onlyMine);btn.textContent=tableState[mode].onlyMine?'👤 Els meus':'👥 Tots';}filterTable(mode);}
+
+function filterTable(mode){
+  const q=(document.getElementById(`src-${mode}`)?.value||'').toLowerCase();
+  const estat=document.getElementById(`est-${mode}`)?.value||'';
+  const estatus=document.getElementById(`ets-${mode}`)?.value||'';
+  const onlyMe=tableState[mode]?.onlyMine;
+  let items=S.contacts.filter(c=>{
+    if(mode==='leads')return!c.assignat&&!['Completat','Perdut'].includes(c.estat);
+    if(mode==='meus'&&c.assignat!==myEmail())return false;
+    if(mode==='tots'&&onlyMe&&c.assignat!==myEmail())return false;
+    if(estat&&c.estat!==estat)return false;
+    if(estatus&&c.estatus!==estatus)return false;
+    if(q&&!`${c.nomComplet} ${c.email} ${c.telefon} ${c.accions}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const tbody=document.getElementById('tbody-'+mode);
+  if(!items.length){tbody.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>Cap contacte trobat</p></div>';return;}
+  tbody.innerHTML=`<table class="tbl"><thead><tr><th>Venciment</th><th>Contacte</th><th>Estatus</th><th>Estat</th><th>Ticket</th><th>Assignat a</th><th>Acció</th><th>Accions</th></tr></thead><tbody>${items.map(c=>contactRow(c,mode)).join('')}</tbody></table>`;
+}
+
+function contactRow(c,mode){
+  const _uNom=USERS.find(u=>u.email===c.assignat)?.nom||(c.assignat?c.assignat.split('@')[0]:null);
+  const ad=_uNom?`<span style="font-size:12px">${_uNom}</span>`:`<span style="color:var(--muted);font-size:12px">Sense assignar</span>`;
+  const tel=(c.telefon||'').replace(/\D/g,'');
+  return`<tr><td class="${vencClass(c.venciment)}">${fmtDate(c.venciment)}</td><td><span class="c-name">${c.nomComplet||'-'}</span><span class="c-sub">${c.email||''} ${c.telefon?'· '+c.telefon:''}</span></td><td>${estatusBadge(c.estatus)}</td><td>${estatBadge(c.estat)}</td><td><strong>${fmtTicket(c.ticketNum)}</strong></td><td>${ad}</td><td style="max-width:160px;font-size:12px;color:var(--muted)">${(c.accions||'').substring(0,55)}${(c.accions?.length||0)>55?'...':''}</td><td><div class="tbl-actions">${tel.length>8?`<button class="btn-icon" title="WhatsApp" onclick="openWA(${c._row})">💬</button>`:''} ${c.email?`<button class="btn-icon" title="Email" onclick="openEmail(${c._row})">📧</button>`:''} <button class="btn-icon" title="Editar" onclick="openContacteModal(${c._row})">✏️</button>${mode==='leads'?`<button class="btn btn-sm btn-blue" onclick="assignarMe(${c._row})">Assignar-me'l</button>`:''}</div></td></tr>`;
+}
+
+function updateBadges(){
+  const sense=S.contacts.filter(c=>!c.assignat&&!['Completat','Perdut'].includes(c.estat));
+  const meus=S.contacts.filter(c=>c.assignat===myEmail()&&!['Completat','Perdut'].includes(c.estat));
+  const bl=document.getElementById('badge-leads');const bm=document.getElementById('badge-meus');
+  bl.textContent=sense.length;bl.classList.toggle('hidden',sense.length===0);
+  bm.textContent=meus.length;bm.classList.toggle('hidden',meus.length===0);
+}
+
+function openWA(row){
+  const c=S.contacts.find(x=>x._row===row);if(!c)return;
+  const tel=(c.telefon||'').replace(/\D/g,'');
+  document.getElementById('md-title').textContent='💬 WhatsApp a '+c.nomComplet;
+  document.getElementById('md-body').innerHTML=`<div class="form-group"><label>Telèfon</label><input type="text" id="wa-tel" value="${tel}" readonly style="background:#f8fafc"></div><div class="form-group"><label>Missatge (editable)</label><textarea id="wa-msg" rows="4">Hola ${c.nom}, et contacte de Home Partners. ${c.accions||''}</textarea></div>`;
+  document.getElementById('md-ftr').innerHTML=`<button class="btn btn-secondary" onclick="closeMd()">Cancel·lar</button><button class="btn btn-wa" onclick="sendWA()">💬 Obrir WhatsApp</button>`;
+  openMd();
+}
+function sendWA(){const tel=document.getElementById('wa-tel').value.replace(/\D/g,'');const msg=encodeURIComponent(document.getElementById('wa-msg').value);closeMd();window.open(`https://wa.me/${tel}?text=${msg}`,'_blank');}
+
+function openEmail(row){
+  const c=S.contacts.find(x=>x._row===row);if(!c?.email){toast('Sense email','err');return;}
+  document.getElementById('md-title').textContent='📧 Email a '+c.nomComplet;
+  document.getElementById('md-body').innerHTML=`<div class="form-group"><label>Per a</label><input type="email" id="em-to" value="${c.email}" readonly style="background:#f8fafc"></div><div class="form-group"><label>Assumpte</label><input type="text" id="em-sub" placeholder="Assumpte..."></div><div class="form-group"><label>Missatge</label><textarea id="em-body" rows="5"></textarea></div><div style="background:#f8fafc;border-radius:7px;padding:12px;font-size:12px;border:1px dashed var(--border)"><span style="color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase">Signatura</span><div style="margin-top:6px;white-space:pre-wrap;color:var(--muted)">${S.sig||'— Configura la signatura a ⚙️ —'}</div></div>`;
+  document.getElementById('md-ftr').innerHTML=`<button class="btn btn-secondary" onclick="closeMd()">Cancel·lar</button><button class="btn btn-blue" onclick="doSendEmail()">📧 Enviar</button>`;
+  openMd();
+}
+async function doSendEmail(){
+  const to=document.getElementById('em-to').value;const sub=document.getElementById('em-sub').value.trim();const bod=document.getElementById('em-body').value.trim();
+  if(!sub||!bod){toast('Assumpte i missatge obligatoris','err');return;}
+  setLoad(true,'Enviant email...');closeMd();
+  try{const html=bod.replace(/\n/g,'<br>')+(S.sig?`<br><br>--<br>${S.sig.replace(/\n/g,'<br>')}` :'');const raw=buildRawEmail(to,sub,html);await api(`${GMAIL_API}/messages/send`,'POST',{raw});toast('Email enviat ✓','ok');}
+  catch(e){toast('Error: '+e.message,'err');}finally{setLoad(false);}
+}
+function buildRawEmail(to,subject,html){const msg=[`To: ${to}`,`Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`,'MIME-Version: 1.0','Content-Type: text/html; charset=utf-8','',html].join('\r\n');return btoa(unescape(encodeURIComponent(msg))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+
+function openContacteModal(row=null){
+  const c=row?S.contacts.find(x=>x._row===row):null;
+  const userOpts=['<option value="">Sense assignar</option>',...USERS.map(u=>`<option value="${u.email}" ${(c?.assignat||'')===u.email?'selected':''}>${u.nom}</option>`)].join('');
+  document.getElementById('md-title').textContent=c?'Editar contacte':'Nou contacte';
+  document.getElementById('md-body').innerHTML=`<div class="form-row"><div class="form-group"><label>Nom *</label><input id="f-nom" value="${c?.nom||''}"></div><div class="form-group"><label>Cognoms</label><input id="f-cog" value="${c?.cognoms||''}"></div></div><div class="form-row"><div class="form-group"><label>Email</label><input type="email" id="f-email" value="${c?.email||''}"></div><div class="form-group"><label>Telèfon</label><input id="f-tel" value="${c?.telefon||''}"></div></div><div class="form-row"><div class="form-group"><label>Estatus</label><select id="f-estatus">${['Lead','Prospecte','Client','Soci'].map(e=>`<option value="${e}"${c?.estatus===e?' selected':''}>${e}</option>`).join('')}</select></div><div class="form-group"><label>Estat</label><select id="f-estat">${['No iniciat','En progrés','Completat','Perdut'].map(e=>`<option value="${e}"${(c?.estat||'No iniciat')===e?' selected':''}>${e}</option>`).join('')}</select></div></div><div class="form-row"><div class="form-group"><label>Venciment</label><input id="f-venc" value="${c?.venciment||''}" placeholder="30 abr 2026"></div><div class="form-group"><label>Ticket (€)</label><input type="number" id="f-ticket" value="${c?.ticketNum||''}"></div></div><div class="form-group"><label>Assignat a</label><select id="f-assignat">${userOpts}</select></div><div class="form-group"><label>Acció / Nota</label><textarea id="f-accions" rows="3">${c?.accions||''}</textarea></div>`;
+  document.getElementById('md-ftr').innerHTML=`${c?`<button class="btn btn-danger btn-sm" onclick="deleteContact(${c._row})">Eliminar</button>`:''}  <button class="btn btn-secondary" onclick="closeMd()">Cancel·lar</button><button class="btn btn-blue" onclick="saveContact(${c?c._row:'null'})">Desar</button>`;
+  openMd();
+}
+
+async function saveContact(row=null){
+  const nom=document.getElementById('f-nom').value.trim();if(!nom){toast('El nom és obligatori','err');return;}
+  const tv=document.getElementById('f-ticket').value;const tf=tv?'€'+Number(tv).toLocaleString('ca-ES'):'';
+  const data={venciment:document.getElementById('f-venc').value.trim(),accions:document.getElementById('f-accions').value.trim(),estatus:document.getElementById('f-estatus').value,nom,cognoms:document.getElementById('f-cog').value.trim(),email:document.getElementById('f-email').value.trim(),telefon:document.getElementById('f-tel').value.trim(),estat:document.getElementById('f-estat').value,ticket:tf,assignat:document.getElementById('f-assignat').value,data_creacio:row?(S.contacts.find(x=>x._row===row)?.data_creacio||''):new Date().toISOString(),origen:row?(S.contacts.find(x=>x._row===row)?.origen||'app'):'app'};
+  setLoad(true,'Desant...');closeMd();
+  try{
+    if(row){await writeMainCols(row,data);await writeAppCols(row,data);toast('Actualitzat ✓','ok');}
+    else{const rd=Array(14).fill('');rd[COL.venciment]=data.venciment;rd[COL.accions]=data.accions;rd[COL.estatus]=data.estatus;rd[COL.nom]=data.nom;rd[COL.cognoms]=data.cognoms;rd[COL.email]=data.email;rd[COL.telefon]=data.telefon;rd[COL.estat]=data.estat;rd[COL.ticket]=data.ticket;rd[COL.assignat]=data.assignat;rd[COL.data_creacio]=data.data_creacio;rd[COL.origen]=data.origen;await api(`${SHEETS_API}/${S.sheetId}/values/${SHEET_NAME}!A:N:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,'POST',{values:[rd]});toast('Creat ✓','ok');}
+    await loadData();renderAll();
+  }catch(e){toast('Error: '+e.message,'err');}finally{setLoad(false);}
+}
+async function writeMainCols(ri,d){const v=[d.venciment,d.accions,d.estatus,d.nom,d.cognoms,d.email,d.telefon,d.estat,d.ticket];await api(`${SHEETS_API}/${S.sheetId}/values/${encodeURIComponent(SHEET_NAME+'!A'+ri+':I'+ri)}?valueInputOption=USER_ENTERED`,'PUT',{values:[v]});}
+async function writeAppCols(ri,d){await api(`${SHEETS_API}/${S.sheetId}/values/${encodeURIComponent(SHEET_NAME+'!L'+ri+':N'+ri)}?valueInputOption=RAW`,'PUT',{values:[[d.assignat,d.data_creacio,d.origen]]});}
+async function deleteContact(row){if(!confirm('Eliminar?'))return;setLoad(true,'Eliminant...');closeMd();try{const sp=await api(`${SHEETS_API}/${S.sheetId}?fields=sheets.properties`);const sh=sp.sheets.find(s=>s.properties.title===SHEET_NAME);await api(`${SHEETS_API}/${S.sheetId}:batchUpdate`,'POST',{requests:[{deleteDimension:{range:{sheetId:sh.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]});toast('Eliminat','ok');await loadData();renderAll();}catch(e){toast('Error: '+e.message,'err');}finally{setLoad(false);}}
+async function assignarMe(row){setLoad(true,'Assignant...');try{const c=S.contacts.find(x=>x._row===row);await writeAppCols(row,{assignat:myEmail(),data_creacio:c?.data_creacio||'',origen:c?.origen||'formulari'});toast('Assignat ✓','ok');await loadData();renderAll();go('meus');}catch(e){toast('Error: '+e.message,'err');}finally{setLoad(false);}}
+
+function previewSig(){const v=document.getElementById('inp-sig').value;document.getElementById('sig-preview').textContent=v||'— Sense signatura —';}
+function saveSig(){S.sig=document.getElementById('inp-sig').value;localStorage.setItem('hp_sig_'+S.user.email,S.sig);toast('Signatura desada ✓','ok');}
+function openMd(){document.getElementById('modal-bg').classList.add('open');}
+function closeMd(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('open');}
+function setLoad(v,msg='Carregant...'){const el=document.getElementById('loading');el.style.display=v?'flex':'none';document.getElementById('load-msg').textContent=msg;}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),3500);}
+</script>
+</body>
+</html>
