@@ -521,7 +521,7 @@ function openContacteModal(row=null){
 async function saveContact(row=null){
   const nom=document.getElementById('f-nom').value.trim();if(!nom){toast('El nom és obligatori','err');return;}
   const tv=document.getElementById('f-ticket').value;const tf=tv?'€'+Number(tv).toLocaleString('ca-ES'):'';
-  const data={venciment:document.getElementById('f-venc').value.trim(),accions:document.getElementById('f-accions').value.trim(),estatus:document.getElementById('f-estatus').value,nom,cognoms:document.getElementById('f-cog').value.trim(),email:document.getElementById('f-email').value.trim(),telefon:document.getElementById('f-tel').value.trim(),estat:document.getElementById('f-estat').value,ticket:tf,assignat:document.getElementById('f-assignat').value,data_creacio:row?(S.contacts.find(x=>x._row===row)?.data_creacio||''):new Date().toISOString(),origen:row?(S.contacts.find(x=>x._row===row)?.origen||'app'):'app'};
+  const data={venciment:document.getElementById('f-venc').value.trim(),accions:document.getElementById('f-accions').value.trim(),estatus:document.getElementById('f-estatus').value,nom,cognoms:document.getElementById('f-cog').value.trim(),email:document.getElementById('f-email').value.trim(),telefon:document.getElementById('f-tel').value.trim(),estat:document.getElementById('f-estat').value,ticket:tf,assignat:document.getElementById('f-assignat').value,data_creacio:row?(S.contacts.find(x=>x._row===row)?.data_creacio||''):new Date().toISOString(),origen:document.getElementById('f-origen')?.value||(row?(S.contacts.find(x=>x._row===row)?.origen||'app'):'app')};
   setLoad(true,'Desant...');closeMd();
   try{
     if(row){await writeMainCols(row,data);await writeAppCols(row,data);toast('Actualitzat ✓','ok');}
